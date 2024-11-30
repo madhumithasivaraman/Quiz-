@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            box-sizing: border-box;
+            background-color: #001e4d;
+        }
+        .app{
+            background-color: white;
+            width: 60%;
+            max-width: 500px;
+            margin: 100px auto 0;
+            border-radius: 10px;
+            padding: 30px;
+        }
+        .app h1{
+            font-size: 45px;
+            color: #001e4d;
+            font-weight: 600;
+            border-bottom: 3px solid black;
+            padding-bottom: 30px;
+        }
+        .quiz{
+            padding: 0 20px ;
+        }
+        h2{
+            font-size: 18px;
+            color: #001e4dd8;
+            font-weight: 600;
+        }
+        .btn{
+            background: white;
+            color:  #001e4d;
+            font-weight: 500;
+            width: 100%;
+            border: 1px solid #08409a;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: left;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn:hover:not([disabled]){
+            background: #203f86;
+            color: white;
+
+        }
+        .btn:disabled{
+            cursor: no-drop;
+        }
+        #next-btn{
+            background-color: #001e4d;
+            color: white;
+            font-weight: 500;
+            width: 150px;
+            border: 0;
+            padding: 10px;
+            margin: 20px auto 0;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            display: none;
+        }
+        .correct{
+            background: #1f8f06d4;
+            color: white;
+        }
+        .incorrect{
+            background: #ee1a1ae2;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <h1>Quiz</h1>
+        <div class="quiz">
+           <h2 id="question">question goes here</h2>
+           <div id="answer-buttons">
+              <button class="btn">Answer 1</button>
+              <button class="btn">Answer 2</button>
+              <button class="btn">Answer 3</button>
+              <button class="btn">Answer 4</button>
+
+           </div>
+           <button id="next-btn">Next</button>
+        </div>
+    </div>
+
+<script>
+    const questions=[
+        {
+            question:"What does HTML stand for ?",
+            answers:[
+                {text:"Hypertensive Money Loan",correct:false},
+                {text:"Hypertext Manual Log",correct:false},
+                {text:"Hypertext Markup Language",correct:true},
+                {text:"Hypertech Math Link",correct:false},
+
+            ]
+        },
+        {
+            question:"What does URL stand for ?",
+            answers:[
+                {text:"Universal Resource Locator",correct:false},
+                {text:"Uniform Resource Locator",correct:true},
+                {text:"University Resourse Locator",correct:false},
+                {text:"Universal Resource Language",correct:false},
+
+            ]
+        },
+        {
+            question:"What does HTTP stand for ?",
+            answers:[
+                {text:"Hypertext Transfer Protocol",correct:true},
+                {text:"Hypertech Transit Protocol",correct:false},
+                {text:"Hypertest Transfer Protocol",correct:false},
+                {text:"Hypertext Transmitter Protocol",correct:false},
+
+            ]
+        },
+        {
+            question:"What does API stand for ?",
+            answers:[
+                {text:"Applications Programming Interface",correct:true},
+                {text:"Applications Programming Instruction",correct:false},
+                {text:"Appliances Programming Interface",correct:false},
+                {text:"Application Programming Instruction",correct:false},
+
+            ]
+        },
+        {
+            question:"What does CSS stand for ?",
+            answers:[
+                {text:"Cascading Style Sheet",correct:true},
+                {text:"Creative Style Sheet",correct:false},
+                {text:"Colourful Style Sheet",correct:false},
+                {text:"Cascading Sheet Style",correct:false},
+
+            ]
+        }
+    ];
+    const questionElement=document.getElementById("question")
+    const answerButtons=document.getElementById("answer-buttons")
+    const nextButton=document.getElementById("next-btn")
+
+    let currentQuestionIndex=0
+    let score=0
+
+    function startQuiz(){
+        currentQuestionIndex=0
+        score=0
+        nextButton.innerHTML="Next"
+        showQuestion()
+    }
+    function showQuestion(){
+        resetState()
+        let currentQuestion=questions[currentQuestionIndex]
+        let questionNo=currentQuestionIndex+1
+        questionElement.innerHTML=questionNo+". "+currentQuestion.question
+
+        currentQuestion.answers.forEach(answer => {
+            const button=document.createElement("button")
+            button.innerHTML=answer.text
+            button.classList.add("btn")
+            answerButtons.appendChild(button)
+            if(answer.correct){
+                button.dataset.correct=answer.correct
+            }
+            button.addEventListener("click",selectanswer)
+            
+        })
+    }
+    function resetState(){
+        nextButton.style.display="none";
+        while(answerButtons.firstChild){
+            answerButtons.removeChild(answerButtons.firstChild)
+
+        }
+    }
+    function selectanswer(e){
+        const selectedBtn=e.target
+        const iscorrect=selectedBtn.dataset.correct==="true"
+        if(iscorrect){
+            selectedBtn.classList.add("correct")
+            score++;
+        }
+        else{
+            selectedBtn.classList.add("incorrect")
+        }
+        Array.from(answerButtons.children).forEach(button=>{
+            if(button.dataset.correct==="true"){
+                button.classList.add("correct")
+            }
+            button.disabled=true
+        })
+        nextButton.style.display="block"
+    }
+     
+    function showscore(){
+        resetState()
+        questionElement.innerHTML=`Your Scored ${score} out of ${questions.length}!`
+        nextButton.innerHTML="Play Again"
+        nextButton.style.display="block"
+    }
+    function handleNextButton(){
+        currentQuestionIndex++
+        if(currentQuestionIndex<questions.length){
+            showQuestion()
+        }
+        else{
+            showscore()
+        }
+    }
+
+    nextButton.addEventListener("click",()=>{
+        if(currentQuestionIndex<questions.length){
+            handleNextButton()
+        }
+        else{
+            startQuiz()
+        }
+    })
+    startQuiz()
+</script>
+</body>
+</html>
